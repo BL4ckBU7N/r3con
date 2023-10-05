@@ -40,7 +40,7 @@ fi
 
 if ! command -v subfinder &> /dev/null; then
     echo "Installing SubFinder..."
-    sudo apt install subfiner
+    sudo apt install subfinder
 else
     echo -e "${CYAN}WhatWeb is already installed. ${ENDCOLOR}"
 fi
