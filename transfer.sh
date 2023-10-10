@@ -9,4 +9,4 @@ target=$1
 username=$2
 destination=$3
 
-scp something.txt $username@$target: $destination > transfer_report
+scp something.txt $username@$target:$destination > transfer_report
