@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#echo -e "${GREEN}  _ __ ___  ___ ___  _ __  "
+#echo -e         " | '__/ _ \/ __/ _ \| '_ \ "
+#echo -e         " | | |  __/ (_| (_) | | | |"
+#echo -e         " |_|  \___|\___\___/|_| |_| ${ENDCOLOR}"
+
 if [ $# -eq 0 ]; then
     echo -e "Provide a Target :${YELLOW} $0 ${RED}<target> ${ENDCOLOR}"
     exit 1
@@ -14,52 +19,22 @@ BOLD=$(tput bold)
 NORMAL=$(tput sgr0)
 
 DOMAIN=$1
-DIRECTORY=${DOMAIN}_recon
+FILE_PATH=${DOMAIN}.txt
 
-
-echo -e "${GREEN}  _ __ ___  ___ ___  _ __  "
-echo -e         " | '__/ _ \/ __/ _ \| '_ \ "
-echo -e         " | | |  __/ (_| (_) | | | |"
-echo -e         " |_|  \___|\___\___/|_| |_| ${ENDCOLOR}"
-
-if [ -d $DIRECTORY ]; then
-    echo -e "\n${RED}Report Exists. Overwriting the Report ${ENDCOLOR}"
-    rm -rf $DIRECTORY
-    mkdir $DIRECTORY
+if [ -e $FILE_PATH ]; then
+    echo -e "\nReport File Exists. Overwriting the Report"
+    rm -f $FILE_PATH
+    touch $FILE_PATH
 else
-    mkdir $DIRECTORY
+    touch $FILE_PATH
 fi
 
 
-echo -e "\n${RED}${BOLD}<-- Nslookup Report --> ${NORMAL}${ENDCOLOR} \n" > $DIRECTORY/report
-echo -e "\nRunning nslookup..."
-nslookup $DOMAIN >> $DIRECTORY/report
+ping -c 3 -W 2 8.8.8.8 >/dev/null 2>&1 && AVAILABLE=1 || AVAILABLE=0
 
-echo -e "\n${RED}${BOLD}<-- Nmap Report --> ${NORMAL}${ENDCOLOR} \n" >> $DIRECTORY/report
-echo "Running nmap..."
-echo -e "Open Ports :\n" >> $DIRECTORY/report
-nmap $DOMAIN > $DIRECTORY/.nmap
-cat $DIRECTORY/.nmap | grep "open" >> $DIRECTORY/report
-
-echo -e "\n${RED}${BOLD}<-- AssetFinder Report --> ${NORMAL}${ENDCOLOR} \n" >> $DIRECTORY/report
-echo "Running assetfinder..."
-assetfinder $DOMAIN > $DIRECTORY/.assets
-cat $DIRECTORY/.assets | sort >> $DIRECTORY/report
-
-echo -e "\n${RED}${BOLD}<-- SubFind3r Report --> ${NORMAL}${ENDCOLOR} \n" >> $DIRECTORY/report
-echo "Running subfind3r..."
-subfinder -d $DOMAIN > $DIRECTORY/.subfind3r
-cat $DIRECTORY/.subfind3r | sort >> $DIRECTORY/report
-
-echo -e "\n${RED}${BOLD}<-- WhatWeb Report --> ${NORMAL}${ENDCOLOR} \n" >> $DIRECTORY/report
-echo -e "\nRunning whatweb..."
-whatweb $DOMAIN > $DIRECTORY/.whatweb
-sed 's/,/,\
-/g' $DIRECTORY/.whatweb >> $DIRECTORY/report
-
-echo -e "\n${RED}${BOLD}<-- PING Report --> ${NORMAL}${ENDCOLOR} \n" >> $DIRECTORY/report
-echo "Pinging the target..."
-ping -c 3 $DOMAIN >> $DIRECTORY/report
-
-
-echo -e "\nThe Results are stored in${YELLOW} $DIRECTORY/report ${ENDCOLOR}"
+if [ $AVAILABLE -eq 0 ]; then
+    echo -e "${RED}No Internet Connection${ENDCOLOR}"
+    exit 1
+else 
+    echo -e "${GREEN}Internet Connection Available${ENDCOLOR}"
+fi
